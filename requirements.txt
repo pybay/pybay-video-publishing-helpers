@@ -1,0 +1,10 @@
+# Google Drive Video Downloader Requirements
+google-api-python-client>=2.108.0
+google-auth-httplib2>=0.2.0
+google-auth-oauthlib>=1.2.0
+pytest>=8.4.2
+tqdm>=4.66.0  # For progress tracking (TODO: integrate ProgressTracker)
+requests>=2.31.0  # For parallel fast downloads, faster than the google library helper
+
+# web scraping
+beautifulsoup4>=4.14.0
