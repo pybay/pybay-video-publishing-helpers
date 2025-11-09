@@ -140,9 +140,16 @@ __marimo__/
 credentials.json
 token.json
 
-# Video download destination (large files, should not be committed)
-pybay_videos_destination/
-!pybay_videos_destination/.gitkeep
+# Video download destination (yt-dlp metadata files)
+pybay_yt_video_download_dir/*
+!pybay_yt_video_download_dir/.gitkeep
+
+# PyVideo data directory (yt-dlp metadata + converted output)
+pyvideo_data_dir/*
+!pyvideo_data_dir/.gitkeep
+!pyvideo_data_dir/yt_metadata/
+pyvideo_data_dir/yt_metadata/*
+!pyvideo_data_dir/yt_metadata/.gitkeep
 
 # pycharm plugin dirs to ignore
 /.qodo/

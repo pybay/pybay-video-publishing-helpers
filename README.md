@@ -7,7 +7,8 @@ Utilities to automate processing of PyBay conference videos for publication on Y
 This toolkit helps volunteers prepare PyBay conference videos for publication by:
 - Downloading videos from Google Drive
 - Fetching talk metadata from the PyBay website
-- Renaming videos to a consistent, publication-ready formatg
+- Renaming videos to a consistent, publication-ready format
+- Converting YouTube metadata to PyVideo.org format for global archival
 
 **Key Design Principles:**
 - **Use public information** - Relies on publicly accessible pybay.org pages to avoid requiring volunteers to access complex/paid systems (Sessionize, paid Google Drive accounts, etc.)
@@ -65,13 +66,13 @@ python src/google_drive_video_downloader.py \
 ```
 
 **This single command automatically:**
-1. ✅ Downloads all videos in parallel (4-8x faster)
-2. ✅ Saves metadata → `_pybay_2025_gdrive_metadata.json`
-3. ✅ Fetches talk data → `_pybay_2025_talk_data.json`
-4. ✅ Renames to publication format → `Title — Speaker (PyBay 2025).mp4`
-5. ✅ Flags unmatched files for review → `![REVIEW_NEEDED]_filename.mp4`
-6. ✅ Verifies downloads with MD5 checksums
-7. ✅ Skips already-downloaded files (resumable)
+1. Downloads all videos in parallel (4-8x faster)
+2. Saves metadata → `_pybay_2025_gdrive_metadata.json`
+3. Fetches talk data → `_pybay_2025_talk_data.json`
+4. Renames to publication format → `Title — Speaker (PyBay 2025).mp4`
+5. Flags unmatched files for review → `![REVIEW_NEEDED]_filename.mp4`
+6. Verifies downloads with MD5 checksums
+7. Skips already-downloaded files (resumable)
 
 **Using service account authentication:**
 ```bash
@@ -149,12 +150,12 @@ For multi-speaker talks, matches if **ANY** speaker name appears in the filename
 
 ### Special Cases Handled
 
-- ✅ Multiple speakers joined with " & " (we often have 1-2 every year, last one in 2024)
-- ✅ Hyphenated last names (e.g., Hatfield-Dodds)
-- ✅ Single names (e.g., no last name, which comes from incomplete Sessionize profiels)
-- ✅ Multi-part surnames (e.g., van Rossum)
-- ✅ Missing name data (uses whatever is available)
-- ✅ Files without metadata flagged for manual review by adding prefix to final filename
+- Multiple speakers joined with " & " (we often have 1-2 every year, last one in 2024)
+- Hyphenated last names (e.g., Hatfield-Dodds)
+- Single names (e.g., no last name, which comes from incomplete Sessionize profiels)
+- Multi-part surnames (e.g., van Rossum)
+- Missing name data (uses whatever is available)
+- Files without metadata flagged for manual review by adding prefix to final filename
 
 ### Parallel Downloads w/auto retry
 
@@ -173,6 +174,39 @@ Some tests written - could use more for sure
 - Web scraping and parsing (13 tests)
 - Time normalization (15 tests)
 
+## Complete Publishing Workflow
+
+The full PyBay video publishing process has three steps:
+
+1. **Download & Rename** (this repo) - Process videos from AV vendor
+2. **Upload to YouTube** - Publish to SF Python YouTube channel
+3. **Submit to PyVideo.org** (this repo) - Archive in global Python video database
+
+### Step 1 & 2: Download, Rename, and Upload to YouTube
+
+```bash
+# Download and rename videos from AV vendor Google Drive
+python src/google_drive_video_downloader.py \
+  --gdrive-url "YOUR_FOLDER_ID" \
+  --output-path "pybay_videos_destination" \
+  --year 2025
+
+# Then manually upload to YouTube and create playlist
+```
+
+### Step 3: Submit to PyVideo.org
+
+```bash
+# Convert YouTube metadata to PyVideo format (with fuzzy matching)
+python src/pyvideo_converter.py --url "https://www.youtube.com/playlist?list=PLAYLIST_ID"
+
+# Review flagged videos, fix any issues, then submit PR to pyvideo/data
+```
+
+**See [README_VIDEO_PUBLISHING_WORKFLOW.md](README_VIDEO_PUBLISHING_WORKFLOW.md) for complete details.**
+
+---
+
 ## Project Structure
 
 ```
@@ -180,6 +214,7 @@ pybay-video-publishing-helpers/
 ├── src/
 │   ├── google_drive_video_downloader.py  # Main download script (parallel)
 │   ├── file_renamer.py                   # Token-based renamer
+│   ├── pyvideo_converter.py              # YouTube → PyVideo converter (fuzzy matching)
 │   ├── scraper_pybayorg_talk_metadata.py # Scrapes pybay.org for talk data
 │   ├── google_drive_fetch_metadata.py    # Standalone metadata fetcher
 │   ├── google_drive_ops.py               # Google Drive API operations
@@ -189,6 +224,8 @@ pybay-video-publishing-helpers/
 │   ├── test_multi_speaker.py             # Multi-speaker functionality tests
 │   ├── test_scraper.py                   # Scraper function tests
 │   └── test_time_normalization.py        # Time parsing tests
+├── pybay_yt_video_download_dir/          # Renamed videos + metadata (for YouTube upload)
+├── pyvideo_data_dir/                     # PyVideo formatted data (for PyVideo submission)
 ├── README_VIDEO_PUBLISHING_WORKFLOW.md   # Complete workflow documentation
 ├── README_GOOGLE_DRIVE_SETUP.md          # Authentication setup guide
 └── requirements.txt                      # Python dependencies
@@ -255,9 +292,9 @@ This is a volunteer-driven project. Contributions welcome!
 
 **New Features:**
 - Upload to SF Python YouTube channel and playlist (needed!)
-- Automate creation of metadata for PyVideo
-- Improve fuzzy matching for edge cases
+- Improve fuzzy matching for edge cases (currently ~89% success rate)
 - Integrate tqdm progress tracker for better download visibility
+- Automated reStructuredText validation for PyVideo descriptions
 
 **Test Coverage Gaps:**
 

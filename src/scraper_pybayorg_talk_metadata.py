@@ -242,8 +242,8 @@ Examples:
     parser.add_argument(
         '--output', '-o',
         type=str,
-        default='pybay_videos_destination/_pybay_2025_talk_data.json',
-        help='Output file path (default: pybay_videos_destination/_pybay_2025_talk_data.json, use "-" for stdout)'
+        default='pybay_yt_video_download_dir/_pybay_2025_talk_data.json',
+        help='Output file path (default: pybay_yt_video_download_dir/_pybay_2025_talk_data.json, use "-" for stdout)'
     )
 
     parser.add_argument(

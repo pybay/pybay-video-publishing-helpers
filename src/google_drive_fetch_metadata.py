@@ -94,7 +94,7 @@ Examples:
     parser.add_argument(
         '--output',
         type=str,
-        help='Output JSON file path (default: pybay_videos_destination/_pybay_{year}_gdrive_metadata.json)'
+        help='Output JSON file path (default: pybay_yt_video_download_dir/_pybay_{year}_gdrive_metadata.json)'
     )
 
     parser.add_argument(
@@ -137,7 +137,7 @@ Examples:
         output_path = Path(args.output)
         destination_dir = output_path.parent
     else:
-        destination_dir = Path('pybay_videos_destination')
+        destination_dir = Path('pybay_yt_video_download_dir')
 
     # Ensure directory exists
     destination_dir.mkdir(parents=True, exist_ok=True)

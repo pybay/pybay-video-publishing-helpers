@@ -1,6 +1,16 @@
 # PyBay Video Publishing Workflow
 
-## Quick Start (One Command)
+This document covers the complete end-to-end workflow for publishing PyBay conference videos:
+
+1. **Download & Rename** - Process videos from AV vendor and prepare for YouTube
+2. **Upload to YouTube** - Publish to SF Python YouTube channel
+3. **Submit to PyVideo.org** - Make videos discoverable in the global Python video archive
+
+---
+
+## Step 1: Download & Rename Videos
+
+### Quick Start (One Command)
 
 **For volunteers:** Download and rename all videos automatically:
 
@@ -177,3 +187,148 @@ pybay_videos_destination/
 ```
 
 **Keep metadata files** - they provide audit trail and enable re-renaming if needed.  DO NOT upload to YouTube
+
+---
+
+## Step 2: Upload to YouTube
+
+After videos are renamed, upload them to the SF Python YouTube channel:
+
+1. **Create a new playlist** for the current year (e.g., "PyBay 2025")
+2. **Upload all videos** to the playlist
+3. **Publish the playlist** (make it public)
+4. **Note the playlist URL** - you'll need this for PyVideo submission
+
+**Example playlist URL:**
+```
+https://www.youtube.com/playlist?list=PLNl1VPnXL__XXXXXXXXXXXXXXXXX
+```
+
+---
+
+## Step 3: Submit to PyVideo.org
+
+PyVideo.org is the global archive for Python conference videos, making them discoverable and searchable across the entire Python community.
+
+### Why Submit to PyVideo?
+
+- **Discoverability** - Videos are indexed alongside PyCon, EuroPython, and other major conferences
+- **Searchability** - Full-text search across talks, speakers, and descriptions
+- **Preservation** - Long-term archival of Python conference content
+- **Community** - Contributes to the global Python knowledge base
+
+### Automated Workflow
+
+The `pyvideo_converter.py` script automates the conversion of YouTube metadata to PyVideo format with fuzzy matching for speaker extraction.
+
+**Quick Start:**
+
+```bash
+# From project root
+python src/pyvideo_converter.py --url "https://www.youtube.com/playlist?list=PLAYLIST_ID"
+```
+
+**This will:**
+1. Download YouTube metadata using yt-dlp
+2. Fuzzy match video titles to scraped PyBay metadata (~89% success rate)
+3. Generate PyVideo JSON files in `pyvideo_data_dir/pybay-2025/`
+4. Flag videos needing manual review (typically 3-4 videos)
+
+**Expected Output:**
+```
+================================================================================
+Processed 27 videos
+
+3 video(s) need MANUAL REVIEW (missing speakers):
+  - Welcome & Opening Remarks (PyBay 2025)
+  - Lightning Talks Session 1 (PyBay 2025)
+  - Closing Remarks (PyBay 2025)
+
+Search for '"speakers": []' in the generated JSON files to find them.
+================================================================================
+```
+
+### Manual Review & Fixes
+
+**CRITICAL:** Manually review all generated JSON files in `pyvideo_data_dir/pybay-2025/videos/`
+
+Common issues to fix:
+- Videos with empty `"speakers": []` array (flagged in output)
+- Talk titles containing speaker names (should be title only)
+- Descriptions needing reStructuredText (rST) formatting
+- Special characters that need escaping
+
+**Tip:** Use the summary output to quickly find videos needing attention.
+
+### Submit to PyVideo Repository
+
+1. **Fork and clone** the PyVideo data repository:
+   ```bash
+   # Fork on GitHub: https://github.com/pyvideo/data
+   git clone https://github.com/YOUR_USERNAME/data.git pyvideo-data-fork
+   ```
+
+2. **Copy your reviewed data**:
+   ```bash
+   cp -r pyvideo_data_dir/pybay-2025/ pyvideo-data-fork/
+   ```
+
+3. **Create virtual environment and run tests**:
+   ```bash
+   cd pyvideo-data-fork
+   python3 -m venv .venv    # Must be named .venv (required by Makefile)
+   source .venv/bin/activate
+   make test
+   ```
+
+4. **Fix any validation errors** (should be minimal if manual review was thorough)
+
+5. **Create PR**:
+   ```bash
+   git checkout -b pybay-2025
+   git add pybay-2025/
+   git commit -m "Add PyBay 2025 videos"
+   git push origin pybay-2025
+   ```
+
+6. **Submit PR** to https://github.com/pyvideo/data
+
+### Detailed Instructions
+
+For complete step-by-step instructions, see the docstring in `src/pyvideo_converter.py`:
+
+```bash
+python src/pyvideo_converter.py --help
+# Or read the docstring directly in the file
+```
+
+### Directory Structure
+
+After PyVideo conversion, your directory structure will be:
+
+```
+pybay-video-publishing-helpers/
+├── pybay_yt_video_download_dir/
+│   └── _pybay_2025_talk_data.json          # Scraped metadata (source of truth)
+└── pyvideo_data_dir/
+    ├── yt_metadata/                         # YouTube metadata from yt-dlp
+    │   └── *.info.json                      # (cleaned on re-runs)
+    └── pybay-2025/                          # PyVideo submission data
+        ├── category.json                    # Conference metadata
+        └── videos/                          # Video JSON files
+            ├── welcome-opening-remarks.json
+            ├── testing-tools.json
+            └── ...
+```
+
+---
+
+## Complete Workflow Summary
+
+1. **Download & Rename** → `google_drive_video_downloader.py`
+2. **Upload to YouTube** → Manual (SF Python YouTube channel)
+3. **Convert to PyVideo** → `pyvideo_converter.py --url "PLAYLIST_URL"`
+4. **Manual Review** → Fix videos flagged in summary output
+5. **Test & Submit** → Fork PyVideo repo, run tests, create PR
+
+---

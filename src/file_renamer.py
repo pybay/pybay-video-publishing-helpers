@@ -538,15 +538,15 @@ Examples:
   python src/file_renamer.py --dry-run
 
   # Use existing metadata JSON
-  python src/file_renamer.py --metadata-json pybay_videos_destination/_pybay_2025_talk_data.json
+  python src/file_renamer.py --metadata-json pybay_yt_video_download_dir/_pybay_2025_talk_data.json
         """
     )
 
     parser.add_argument(
         '--video-dir',
         type=str,
-        default='pybay_videos_destination',
-        help='Directory containing video files (default: pybay_videos_destination)'
+        default='pybay_yt_video_download_dir',
+        help='Directory containing video files (default: pybay_yt_video_download_dir)'
     )
 
     parser.add_argument(
